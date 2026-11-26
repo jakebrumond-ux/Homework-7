@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Convergence, LLN, CLT and Bayes: an interactive guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f3f6f9;--sf:#fff;--ink:#14202b;--mut:#56667a;--ln:#d5dde6;--a:#2457d6;--b:#d9820b;--c:#138a6b;--r:#c2410c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1720;--sf:#17212c;--ink:#e8eef5;--mut:#9aabbd;--ln:#2b3a4a;--a:#6f98ff;--b:#f0a53a;--c:#3fc29b;--r:#ff8a55;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1720;--sf:#17212c;--ink:#e8eef5;--mut:#9aabbd;--ln:#2b3a4a;--a:#6f98ff;--b:#f0a53a;--c:#3fc29b;--r:#ff8a55;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 "Source Serif 4",Georgia,serif}
+main{max-width:920px;margin:0 auto;padding:24px 18px 80px}
+h1,h2,h3,.ui,label,button,th{font-family:"Source Sans 3",system-ui,sans-serif}
+h1{font-size:2.1rem;line-height:1.15;margin:.4em 0 .3em}
+h2{font-size:1.5rem;margin:2.2em 0 .5em;padding-top:.6em;border-top:2px solid var(--ink)}
+h3{font-size:1.1rem;margin:1.6em 0 .3em}
+p,li{max-width:72ch}
+.lead{color:var(--mut);font-size:1.05rem}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;font-family:"Source Sans 3",sans-serif}
+nav a{color:var(--a);text-decoration:none;border:1px solid var(--ln);background:var(--sf);padding:4px 12px;border-radius:99px;font-size:.9rem}
+.box{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:16px 18px;margin:14px 0}
+.eq{font-family:"Source Serif 4",serif;font-style:italic;background:var(--sf);border-left:4px solid var(--a);padding:8px 14px;margin:10px 0;overflow-x:auto;max-width:72ch}
+.tw{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.92rem;background:var(--sf)}
+th,td{border:1px solid var(--ln);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--a) 12%,var(--sf))}
+.ctl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;font-size:.92rem;margin-bottom:10px}
+.ctl label{display:flex;align-items:center;gap:8px}
+input[type=range]{accent-color:var(--a);width:140px}
+select,button{font:inherit;font-size:.92rem;padding:5px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink);cursor:pointer}
+button.p{background:var(--a);color:#fff;border-color:var(--a)}
+:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.g2{grid-template-columns:1fr}h1{font-size:1.7rem}}
+.cv{position:relative;height:260px}
+.cv.t{height:320px}
+.stat{font-family:"Source Sans 3",sans-serif;font-size:.92rem;color:var(--mut);margin:8px 0 0}
+.stat b{color:var(--ink)}
+.big{font-family:"Source Sans 3",sans-serif;font-size:2rem;font-weight:600;color:var(--r)}
+.pill{display:inline-block;font-family:"Source Sans 3",sans-serif;font-size:.85rem;border:1px solid var(--ln);padding:1px 8px;border-radius:6px;background:var(--sf)}
+</style>
+</head>
+<body>
+<main>
+<h1>Convergence, the LLN and CLT, and Bayesian updating</h1>
+<p class="lead">Two parts, each with live simulations. Change the sliders and watch the theory happen.</p>
+<nav><a href="#modes">Modes of convergence</a><a href="#lln">LLN lab</a><a href="#clt">CLT lab</a><a href="#sqrtn">Why √n</a><a href="#bayes">Bayes’ theorem</a><a href="#beta">Prior × likelihood lab</a><a href="#test">Medical test lab</a></nav>
+
+<h2 id="modes">1. Modes of convergence</h2>
+<p>Let X₁, X₂, … be random variables and X a limit. “Xₙ → X” can mean four different things, ordered here from strongest to weakest information about the limit.</p>
+<div class="tw"><table>
+<tr><th>Mode</th><th>Definition</th><th>Intuition</th><th>Where it appears</th></tr>
+<tr><td><b>Almost sure</b> (a.s.)</td><td>P(lim Xₙ = X) = 1</td><td>Each single run of the experiment converges; only a null set of paths misbehaves.</td><td><b>Strong LLN</b> (Kolmogorov): X̄ₙ → μ a.s. Also Glivenko–Cantelli.</td></tr>
+<tr><td><b>In probability</b> (P)</td><td>∀ε&gt;0: P(|Xₙ − X| &gt; ε) → 0</td><td>At a fixed large n, a big miss is unlikely, but different n may miss on different paths.</td><td><b>Weak LLN</b>; <b>consistency</b> of estimators; Slutsky’s lemma.</td></tr>
+<tr><td><b>Mean-square</b> (L²)</td><td>E|Xₙ − X|² → 0</td><td>Average squared error vanishes. Mean squared error = variance + bias².</td><td>X̄ₙ → μ in L² when Var(X)=σ²&lt;∞, since E(X̄ₙ−μ)² = σ²/n. Basis of Chebyshev proofs.</td></tr>
+<tr><td><b>In distribution</b> (D)</td><td>Fₙ(x) → F(x) at every continuity point of F</td><td>Only the <i>shape</i> of the law converges, not the values themselves.</td><td><b>CLT</b>: √n(X̄ₙ−μ)/σ → N(0,1). Delta method, asymptotic tests and confidence intervals.</td></tr>
+</table></div>
+<div class="box">
+<b class="ui">Hierarchy.</b>
+<div class="eq">a.s. ⇒ in probability ⇒ in distribution &nbsp;&nbsp;and&nbsp;&nbsp; L² ⇒ in probability</div>
+<ul>
+<li>a.s. and L² do not imply each other (a.s. needs a dominating bound to give L²; L² can hold while some paths keep jumping).</li>
+<li>Distribution ⇒ probability <b>only</b> when the limit is a constant. Example: Xₙ ~ N(0,1) for all n converges in distribution to −X (also N(0,1)) but not in probability to it.</li>
+<li>Probability ⇒ a.s. along a subsequence.</li>
+</ul></div>
+<h3>Roles in the LLN and the CLT</h3>
+<p>The <b>LLN</b> says the sample mean settles on μ: weakly (in probability) or strongly (a.s.). Under finite variance the L² version is a one-line computation. The <b>CLT</b> says something finer: the <i>fluctuations</i> of X̄ₙ around μ, magnified by √n, have a universal Gaussian shape. It is a statement in distribution only: no single path of √n(X̄ₙ−μ) converges. The LLN gives where the estimator goes; the CLT gives how fast and with what error law, which is what confidence intervals and tests need.</p>
+
+<h2 id="lln">LLN lab: probability, L² and almost-sure behaviour</h2>
+<div class="box">
+<div class="ctl">
+<label>Distribution <select id="l-d"></select></label>
+<label>n max <input type="range" id="l-n" min="100" max="5000" step="100" value="2000"><span id="l-nv">2000</span></label>
+<label>ε <input type="range" id="l-e" min="0.02" max="0.3" step="0.01" value="0.1"><span id="l-ev">0.10</span></label>
+<button class="p" id="l-go">Run 300 experiments</button>
+</div>
+<div class="cv t"><canvas id="c-paths"></canvas></div>
+<p class="stat">Six individual paths of the running mean X̄ₙ (almost-sure view) with the band μ ± ε.</p>
+<div class="g2">
+<div><div class="cv"><canvas id="c-prob"></canvas></div><p class="stat">Convergence in probability: share of 300 runs with |X̄ₙ−μ| &gt; ε.</p></div>
+<div><div class="cv"><canvas id="c-mse"></canvas></div><p class="stat">L²: estimated E(X̄ₙ−μ)² against the theoretical σ²/n (log axes).</p></div>
+</div>
+<p class="stat" id="l-out"></p>
+</div>
+<p>Try <b>Cauchy</b>: the mean does not exist, the variance is infinite, and X̄ₙ is again Cauchy for every n. None of the four modes holds, so the LLN fails and the paths keep jumping. This shows the integrability condition E|X|&lt;∞ is not a technicality.</p>
+
+<h2 id="clt">CLT lab: convergence in distribution</h2>
+<div class="box">
+<div class="ctl">
+<label>Distribution <select id="c-d"></select></label>
+<label>n <input type="range" id="c-n" min="1" max="200" value="5"><span id="c-nv">5</span></label>
+<label>Scaling <select id="c-s"><option value="0.5">√n (CLT)</option><option value="0">none: X̄ₙ−μ</option><option value="1">n: too large</option></select></label>
+</div>
+<div class="cv t"><canvas id="c-hist"></canvas></div>
+<p class="stat" id="c-out"></p>
+</div>
+<p>With scaling √n the histogram of 4000 simulated values approaches the N(0,1) density, even for the very skewed Exponential or the two-point Bernoulli. With no scaling the distribution collapses to a spike at 0 (that is the LLN); with scaling n it explodes. √n is the <i>only</i> power that gives a non-degenerate limit. With Cauchy, the CLT fails, because the variance is infinite.</p>
+
+<h2 id="sqrtn">Why does √n keep appearing?</h2>
+<div class="box">
+<p><b>Variance adds, standard deviations do not.</b> For Sₙ = X₁+…+Xₙ:</p>
+<div class="eq">Var(Sₙ) = Σ Var(Xᵢ) + 2 Σᵢ&lt;ⱼ Cov(Xᵢ,Xⱼ)</div>
+<p>Independence (or just uncorrelatedness) kills the covariance terms, so Var(Sₙ) = nσ². Then:</p>
+<div class="eq">sd(Sₙ) = σ√n, &nbsp; sd(X̄ₙ) = σ/√n, &nbsp; sd(Sₙ/√n) = σ</div>
+<p>So dividing the centred sum by √n is exactly the normalisation that keeps variance fixed at σ²: any slower scaling lets it vanish, any faster lets it blow up. That is why the CLT reads √n(X̄ₙ−μ) → N(0,σ²), and why the L² rate of the LLN is σ²/n.</p>
+<p><b>When independence fails.</b> If neighbouring variables are positively correlated, covariances add to Var(Sₙ). For stationary series the variance becomes n·σ²<sub>LR</sub> with a “long-run variance” σ²<sub>LR</sub> = Σₖ γ(k), and √n survives with a larger constant. With very strong dependence (e.g. all Xᵢ identical, ρ = 1) Var(Sₙ) = n²σ² and no averaging happens at all.</p>
+<p><b>In statistical inference.</b> The standard error of a mean is s/√n, and a 95% interval is X̄ ± 1.96·s/√n. To halve the error you need four times the data. Regular estimators such as the MLE are “√n-consistent”: √n(θ̂−θ) → N(0, I(θ)⁻¹), the basis of Wald tests, t-tests and the delta method.</p>
+</div>
+
+<h2 id="bayes">2. Conditional probability and Bayes’ theorem</h2>
+<p><b>Conditional probability</b> restricts attention to the world where B happened: P(A|B) = P(A∩B)/P(B). In statistics it is the language of models: a model is a family of conditional laws p(data | θ). Rearranging the definition twice gives <b>Bayes’ theorem</b>:</p>
+<div class="eq">P(θ | data) = P(data | θ)·P(θ) / P(data) &nbsp;&nbsp; ∝ &nbsp; likelihood × prior</div>
+<div class="tw"><table>
+<tr><th>Component</th><th>Meaning</th><th>Role</th></tr>
+<tr><td><b>Prior</b> p(θ)</td><td>What we believe about θ before seeing data (earlier studies, physics, expert knowledge, or deliberate vagueness).</td><td>Starting point; regularises small samples.</td></tr>
+<tr><td><b>Likelihood</b> L(θ) = p(data | θ)</td><td>How well each θ explains the observed data. It is a function of θ, not a probability distribution over θ.</td><td>The only place data enters; shared with frequentist inference (MLE).</td></tr>
+<tr><td><b>Posterior</b> p(θ | data)</td><td>Updated belief after the data.</td><td>Basis of estimates, credible intervals, predictions and decisions.</td></tr>
+<tr><td><b>Evidence</b> p(data)</td><td>Normalising constant ∫ L(θ)p(θ)dθ.</td><td>Makes the posterior sum to 1; used for model comparison.</td></tr>
+</table></div>
+<p>The update is <b>sequential</b>: today’s posterior is tomorrow’s prior, and processing data in batches or all at once gives the same answer. As n grows, the likelihood dominates and different reasonable priors lead to the same conclusion (the Bernstein–von Mises theorem, which is itself a CLT-type result: the posterior becomes approximately normal, centred near the MLE, with sd ≈ 1/√(nI)). That is why Bayesian and frequentist answers agree with lots of data and differ with little.</p>
+
+<h2 id="beta">Prior × likelihood lab: Beta-Binomial</h2>
+<p>Unknown success probability θ (e.g. a conversion rate). Prior Beta(α,β); data: k successes in n trials. The posterior is Beta(α+k, β+n−k): prior behaves like α+β “pseudo-observations”.</p>
+<div class="box">
+<div class="ctl">
+<label>α <input type="range" id="b-a" min="0.5" max="50" step="0.5" value="1"><span id="b-av">1</span></label>
+<label>β <input type="range" id="b-b" min="0.5" max="50" step="0.5" value="1"><span id="b-bv">1</span></label>
+</div>
+<div class="ctl">
+<label>trials n <input type="range" id="b-n" min="0" max="200" value="10"><span id="b-nv">10</span></label>
+<label>successes k <input type="range" id="b-k" min="0" max="10" value="7"><span id="b-kv">7</span></label>
+</div>
+<div class="ctl">Priors:
+<button data-p="1,1">Flat Beta(1,1)</button><button data-p="2,8">Sceptical Beta(2,8)</button><button data-p="30,30">Strong, centred Beta(30,30)</button><button data-p="0.5,0.5">Jeffreys Beta(½,½)</button>
+</div>
+<div class="cv t"><canvas id="c-beta"></canvas></div>
+<p class="stat" id="b-out"></p>
+</div>
+<h3>What to observe</h3>
+<ul>
+<li><b>Few data (n = 10, k = 7).</b> Flat prior: the posterior follows the likelihood. The strong Beta(30,30) prior stays near 0.5; the sceptical one pulls the estimate down. The prior visibly drives the conclusion.</li>
+<li><b>Many data (n = 200).</b> Every prior gives nearly the same posterior; the likelihood wins and the interval narrows like 1/√n.</li>
+<li><b>Advantages:</b> it uses outside information, gives direct probability statements (“P(θ &gt; 0.5 | data) = …”), handles small samples and updates sequentially.</li>
+<li><b>Limitations:</b> results depend on the prior (needs justification and sensitivity checks), “non-informative” priors are not unique (they change under reparametrisation), and non-conjugate posteriors need MCMC or approximations.</li>
+</ul>
+
+<h2 id="test">Likelihood and base rates: a diagnostic test</h2>
+<p>Here θ is binary (diseased or not). The prior is the prevalence, the likelihoods are sensitivity P(+|D) and the false-positive rate 1 − specificity.</p>
+<div class="box">
+<div class="ctl">
+<label>Prevalence % <input type="range" id="t-p" min="0.1" max="50" step="0.1" value="1"><span id="t-pv">1</span></label>
+<label>Sensitivity % <input type="range" id="t-s" min="50" max="100" step="1" value="90"><span id="t-sv">90</span></label>
+<label>Specificity % <input type="range" id="t-c" min="50" max="100" step="1" value="95"><span id="t-cv">95</span></label>
+</div>
+<div class="g2">
+<div><div class="big" id="t-ppv"></div><p class="stat" id="t-nat"></p><div class="cv"><canvas id="c-nat"></canvas></div></div>
+<div><div class="cv"><canvas id="c-ppv"></canvas></div><p class="stat">P(disease | positive) as prevalence changes; the dot is your setting.</p></div>
+</div>
+</div>
+<p>With the defaults, a positive result from a “90% sensitive, 95% specific” test means only about 15% chance of disease, because the prior (prevalence) is small and false positives from the large healthy group outnumber true positives. Ignoring the prior is the <i>base-rate fallacy</i>; confusing P(+|D) with P(D|+) is the “prosecutor’s fallacy”. Raise prevalence and watch the posterior jump.</p>
+<h2 id="end">Conclusion</h2>
+<p>The four modes of convergence answer different questions. <b>Almost sure</b> convergence says a single long run settles down; <b>in probability</b> says a big miss becomes unlikely at each large n; <b>mean-square</b> adds a rate for the typical squared error (σ²/n for the sample mean); <b>in distribution</b> says only the shape of the law stabilises. The chain a.s. ⇒ P ⇒ D (and L² ⇒ P) tells us which statements are stronger, and why the CLT, a statement in distribution, cannot be upgraded to path-by-path convergence.</p>
+<p>Together, the <b>LLN</b> and the <b>CLT</b> form the backbone of statistical inference. The LLN justifies consistency: with enough data the estimate lands on the truth. The CLT quantifies the remaining error: it shrinks like 1/√n and is approximately Gaussian whatever the underlying distribution. The √n comes from additivity of variance under independence, and when independence or finite variance fails, as in the Cauchy case or with strong dependence, the standard results change or break.</p>
+<p><b>Bayes’ theorem</b> turns conditional probability into a learning rule: posterior ∝ likelihood × prior. The prior carries what we knew, the likelihood carries what the data say, and the posterior combines them, then becomes the next prior. With little data the prior can steer the conclusion, as the Beta-Binomial lab shows, and with a low base rate even an accurate test gives a modest posterior, as the diagnostic lab shows. With a lot of data the likelihood dominates and Bayesian and frequentist answers converge, which is the CLT’s √n at work again in the posterior.</p>
+<div class="box"><b class="ui">Take-aways</b>
+<ul>
+<li>Know which mode of convergence a theorem uses; the weaker one is usually enough for inference.</li>
+<li>LLN tells you <i>where</i> an estimator goes, CLT tells you <i>how fast</i> and with what error law.</li>
+<li>√n is the unique scaling that keeps the variance of a centred sum of independent terms stable.</li>
+<li>Always state and check your prior, run sensitivity checks, and never ignore base rates.</li>
+</ul></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const cs=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+Chart.defaults.font.family='"Source Sans 3",system-ui,sans-serif';
+Chart.defaults.color=cs('--mut');Chart.defaults.borderColor=cs('--ln');
+Chart.defaults.maintainAspectRatio=false;Chart.defaults.animation=false;
+const A=cs('--a'),B=cs('--b'),C=cs('--c'),R=cs('--r'),M=cs('--mut');
+const ch={};
+function mk(id,cfg){if(ch[id])ch[id].destroy();ch[id]=new Chart($(id),cfg)}
+const D={
+ bern:{n:'Bernoulli(0.3)',mu:.3,sd:Math.sqrt(.21),r:()=>Math.random()<.3?1:0},
+ unif:{n:'Uniform(0,1)',mu:.5,sd:Math.sqrt(1/12),r:()=>Math.random()},
+ exp:{n:'Exponential(1), skewed',mu:1,sd:1,r:()=>-Math.log(1-Math.random())},
+ cau:{n:'Cauchy (no mean!)',mu:0,sd:1,r:()=>Math.tan(Math.PI*(Math.random()-.5))}
+};
+for(const s of ['l-d','c-d'])for(const k in D)$(s).add(new Option(D[k].n,k));
+const f=(x,d=3)=>Number(x).toPrecision(d);
+
+/* ---------- LLN lab ---------- */
+function lln(){
+ const d=D[$('l-d').value],N=+$('l-n').value,eps=+$('l-e').value,reps=300;
+ $('l-nv').textContent=N;$('l-ev').textContent=eps.toFixed(2);
+ const grid=[...new Set(Array.from({length:60},(_,i)=>Math.round(Math.pow(N,i/59))))];
+ const cnt=grid.map(()=>0),sq=grid.map(()=>0),paths=[];
+ for(let r=0;r<reps;r++){
+  let s=0,g=0;const p=[];
+  for(let i=1;i<=N;i++){
+   s+=d.r();
+   if(i===grid[g]){const m=s/i,e=m-d.mu;if(Math.abs(e)>eps)cnt[g]++;sq[g]+=e*e;if(r<6)p.push({x:i,y:m});g++}
+  }
+  if(r<6)paths.push(p);
+ }
+ const cols=[A,B,C,R,'#8b5cf6',M];
+ const ds=paths.map((p,i)=>({data:p,borderColor:cols[i],borderWidth:1.4,pointRadius:0}));
+ const lineAt=(y,dash)=>({data:[{x:1,y},{x:N,y}],borderColor:M,borderWidth:1,borderDash:dash,pointRadius:0});
+ ds.push(lineAt(d.mu,[]),lineAt(d.mu+eps,[5,4]),lineAt(d.mu-eps,[5,4]));
+ const yr=$('l-d').value==='cau'?{min:-3,max:3}:{};
+ mk('c-paths',{type:'line',data:{datasets:ds},options:{plugins:{legend:{display:false}},scales:{x:{type:'logarithmic',title:{display:true,text:'n'}},y:{...yr,title:{display:true,text:'running mean X̄ₙ'}}}}});
+ mk('c-prob',{type:'line',data:{datasets:[{data:grid.map((n,i)=>({x:n,y:cnt[i]/reps})),borderColor:A,pointRadius:2,backgroundColor:A}]},options:{plugins:{legend:{display:false}},scales:{x:{type:'logarithmic',title:{display:true,text:'n'}},y:{min:0,max:1,title:{display:true,text:'P(|X̄ₙ−μ|>ε)'}}}}});
+ const mse=grid.map((n,i)=>({x:n,y:sq[i]/reps})),th=grid.map(n=>({x:n,y:d.sd*d.sd/n}));
+ mk('c-mse',{type:'line',data:{datasets:[{label:'simulated E(X̄ₙ−μ)²',data:mse,borderColor:A,pointRadius:2,backgroundColor:A},{label:'σ²/n',data:th,borderColor:B,borderDash:[6,4],pointRadius:0}]},options:{plugins:{legend:{position:'bottom'}},scales:{x:{type:'logarithmic',title:{display:true,text:'n'}},y:{type:'logarithmic',title:{display:true,text:'mean squared error'}}}}});
+ const L=grid.length-1;
+ $('l-out').innerHTML=`At n = <b>${N}</b>: P(|X̄−μ|&gt;ε) ≈ <b>${f(cnt[L]/reps)}</b>; MSE ≈ <b>${f(sq[L]/reps)}</b>; theory σ²/n = <b>${$('l-d').value==='cau'?'undefined (σ² = ∞)':f(d.sd*d.sd/N)}</b>.`;
+}
+$('l-go').onclick=lln;['l-d','l-n','l-e'].forEach(i=>$(i).oninput=lln);
+
+/* ---------- CLT lab ---------- */
+function clt(){
+ const d=D[$('c-d').value],n=+$('c-n').value,p=+$('c-s').value,reps=4000,bins=41;
+ $('c-nv').textContent=n;
+ const sdT=Math.pow(n,p-.5),lim=4*sdT,w=2*lim/bins,cnt=new Array(bins).fill(0);
+ let sm=0,sq=0;
+ for(let r=0;r<reps;r++){
+  let s=0;for(let i=0;i<n;i++)s+=d.r();
+  const z=Math.pow(n,p)*(s/n-d.mu)/d.sd;sm+=z;sq+=z*z;
+  const b=Math.floor((z+lim)/w);if(b>=0&&b<bins)cnt[b]++;
+ }
+ const ctr=cnt.map((_,i)=>-lim+(i+.5)*w);
+ const pdf=ctr.map(x=>Math.exp(-x*x/(2*sdT*sdT))/(sdT*Math.sqrt(2*Math.PI)));
+ mk('c-hist',{data:{labels:ctr.map(x=>x.toFixed(2)),datasets:[
+  {type:'bar',label:'simulated',data:cnt.map(c=>c/(reps*w)),backgroundColor:A+'99',borderColor:A,categoryPercentage:1,barPercentage:1},
+  {type:'line',label:'N(0, '+f(sdT*sdT,2)+') density',data:pdf,borderColor:B,borderWidth:2.5,pointRadius:0,tension:.3}]},
+  options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{maxTicksLimit:9},title:{display:true,text:'scaled value n^s (X̄ₙ−μ)/σ'}},y:{title:{display:true,text:'density'}}}}});
+ const m=sm/reps,sd=Math.sqrt(sq/reps-m*m);
+ $('c-out').innerHTML=`Sample mean ≈ <b>${f(m,2)}</b>, sample sd ≈ <b>${f(sd,3)}</b> (target for a stable limit: 1). `+($('c-d').value==='cau'?'Cauchy: no finite variance, so the Gaussian overlay does not fit.':'');
+}
+['c-d','c-n','c-s'].forEach(i=>$(i).oninput=clt);
+
+/* ---------- Beta-Binomial ---------- */
+function lg(x){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,.001208650973866179,-5.395239384953e-6];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(const k of c)s+=k/++y;return -t+Math.log(2.5066282746310005*s/x)}
+const lB=(a,b)=>lg(a)+lg(b)-lg(a+b);
+const bp=(x,a,b)=>Math.exp((a-1)*Math.log(x)+(b-1)*Math.log(1-x)-lB(a,b));
+function beta(){
+ const a=+$('b-a').value,b=+$('b-b').value,n=+$('b-n').value;
+ $('b-k').max=n;if(+$('b-k').value>n)$('b-k').value=n;const k=+$('b-k').value;
+ $('b-av').textContent=a;$('b-bv').textContent=b;$('b-nv').textContent=n;$('b-kv').textContent=k;
+ const G=400,xs=Array.from({length:G},(_,i)=>(i+.5)/G),a2=a+k,b2=b+n-k;
+ const pr=xs.map(x=>bp(x,a,b)),po=xs.map(x=>bp(x,a2,b2));
+ const lk=xs.map(x=>Math.exp(k*Math.log(x)+(n-k)*Math.log(1-x)));
+ const z=lk.reduce((s,v)=>s+v,0)/G,li=lk.map(v=>v/z);
+ const ln=(arr,col,lab,dash)=>({label:lab,data:arr,borderColor:col,borderWidth:2.2,pointRadius:0,borderDash:dash||[]});
+ mk('c-beta',{type:'line',data:{labels:xs.map(x=>x.toFixed(2)),datasets:[ln(pr,M,'prior',[6,4]),ln(li,B,'likelihood (rescaled)'),ln(po,A,'posterior')]},options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{maxTicksLimit:11},title:{display:true,text:'θ'}},y:{min:0,max:Math.min(40,Math.max(...po,...li,...pr)*1.1),title:{display:true,text:'density'}}}}});
+ let cum=0,lo=null,hi=null,pg=0;
+ xs.forEach((x,i)=>{cum+=po[i]/G;if(lo===null&&cum>=.025)lo=x;if(hi===null&&cum>=.975)hi=x;if(x>.5)pg+=po[i]/G});
+ $('b-out').innerHTML=`Prior mean <b>${f(a/(a+b))}</b> · MLE k/n <b>${n?f(k/n):'–'}</b> · posterior mean <b>${f(a2/(a2+b2))}</b> · 95% credible interval <b>[${f(lo)}, ${f(hi)}]</b> · P(θ&gt;0.5 | data) = <b>${f(pg)}</b>. Prior weight ≈ ${f(a+b,3)} pseudo-trials vs ${n} real ones.`;
+}
+['b-a','b-b','b-n','b-k'].forEach(i=>$(i).oninput=beta);
+document.querySelectorAll('[data-p]').forEach(bt=>bt.onclick=()=>{const[a,b]=bt.dataset.p.split(',');$('b-a').value=a;$('b-b').value=b;beta()});
+
+/* ---------- Medical test ---------- */
+const ppv=(p,s,c)=>p*s/(p*s+(1-p)*(1-c));
+function test(){
+ const p=+$('t-p').value/100,s=+$('t-s').value/100,c=+$('t-c').value/100;
+ $('t-pv').textContent=(p*100).toFixed(1);$('t-sv').textContent=s*100;$('t-cv').textContent=c*100;
+ const N=10000,tp=N*p*s,fn=N*p*(1-s),fp=N*(1-p)*(1-c),tn=N*(1-p)*c,v=ppv(p,s,c);
+ $('t-ppv').textContent=(v*100).toFixed(1)+'% '+'chance of disease after a positive';
+ $('t-nat').innerHTML=`Out of 10,000 people: <b>${Math.round(tp)}</b> true positives vs <b>${Math.round(fp)}</b> false positives.`;
+ mk('c-nat',{type:'bar',data:{labels:['True +','False +','False −','True −'],datasets:[{data:[tp,fp,fn,tn],backgroundColor:[C,R,B,M]}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{type:'logarithmic',min:1,title:{display:true,text:'people (log scale)'}}}}});
+ const xs=Array.from({length:100},(_,i)=>.005+i*.0049);
+ mk('c-ppv',{type:'line',data:{datasets:[{data:xs.map(x=>({x:x*100,y:ppv(x,s,c)})),borderColor:A,borderWidth:2.2,pointRadius:0},{type:'scatter',data:[{x:p*100,y:v}],backgroundColor:R,pointRadius:7}]},options:{plugins:{legend:{display:false}},scales:{x:{type:'linear',min:0,max:50,title:{display:true,text:'prevalence (prior) %'}},y:{min:0,max:1,title:{display:true,text:'posterior P(D | +)'}}}}});
+}
+['t-p','t-s','t-c'].forEach(i=>$(i).oninput=test);
+
+lln();clt();beta();test();
+</script>
+</body>
+</html>
